@@ -10,7 +10,7 @@ docker run --rm --name oereb-db-data -p 54321:5432 --hostname primary \
 -e PG_WRITE_USER=gretl -e PG_WRITE_PASSWORD=gretl \
 -e PG_READ_USER=ogc_server -e PG_READ_PASSWORD=ogc_server \
 -e PGDATA=/tmp/primary \
-sogis/oereb-db-data:latest
+sogis/oereb-db-data:2019-10-25_205953
 ```
 
 Im Image `sogis/oereb-db-data` sind bereits Daten der amtlichen Vermessung in der Datenbank gespeichert.

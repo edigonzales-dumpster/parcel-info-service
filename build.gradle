@@ -2,7 +2,10 @@ plugins {
     id 'org.springframework.boot' version '2.2.0.RELEASE'
     id 'io.spring.dependency-management' version '1.0.8.RELEASE'
     id 'java'
+    id "com.bmuschko.docker-remote-api" version "4.6.2"
 }
+
+apply from: "$rootDir/gradle/versioning.gradle"
 
 group = 'ch.so.agi'
 
@@ -35,3 +38,73 @@ dependencies {
 test {
     useJUnitPlatform()
 }
+
+// Build Docker image
+import com.bmuschko.gradle.docker.tasks.image.Dockerfile
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
+
+docker {
+    registryCredentials {
+        username = System.env.dockerRegistryUser
+        password = System.env.dockerRegistryPass
+    }
+}
+
+task buildDockerImage(type: DockerBuildImage) {
+    description = "Build docker image."
+    inputDir = project.projectDir
+    tags = ["sogis/egrid-service:"+ version, "sogis/egrid-service:latest"]
+    labels = ["egrid-service.created": new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()), 
+            "egrid-service.git_commit":  getCheckedOutGitCommitHash(), 
+            "egrid-service.travis_build": version]
+}
+
+def tags = ["latest", version]
+
+tags.each { tag ->
+    def imageTag = tag.toString()
+    task "pushDockerImage_$imageTag"(type: DockerPushImage) {
+        description = "Push docker image to hub.docker.com: $imageTag"
+        imageName =  "sogis/egrid-service:$imageTag"
+    }
+}
+
+task pushDockerImages() {
+    description = "Push docker images to hub.docker.com."
+    dependsOn {
+        tasks.findAll { task -> task.name.startsWith('pushDockerImage_') }
+    }    
+}
+
+import java.text.SimpleDateFormat
+
+def getCheckedOutGitCommitHash() {
+    'git log -1 --pretty=%H'.execute().text.trim()
+}
+
+def getTimestamp() {
+    def date = new Date()
+    return date.format('yyyy-MM-dd HH:mm:ss')
+}
+
+// Create a static text file with same meta information as the docker labels
+task versionTxt()  {
+    outputs.upToDateWhen { false }
+    doLast {
+        new File("version.txt").text = """
+Version: $version
+Revision: ${getCheckedOutGitCommitHash()}
+Buildtime: ${getTimestamp()}
+Application-name: egrid-service
+"""
+    }
+}
+task copyVersionTxt(type: Copy) {
+    from "version.txt"
+    into "src/main/resources/static/"
+}
+copyVersionTxt.dependsOn(versionTxt)
+build.dependsOn(copyVersionTxt)
+classes.dependsOn(copyVersionTxt)
+

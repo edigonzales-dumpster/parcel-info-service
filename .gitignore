@@ -1,4 +1,6 @@
-i
+version.txt
+src/main/resources/static/version.txt
+
 # Created by https://www.gitignore.io/api/java,linux,macos,maven,gradle,windows,eclipse,intellij,netbeans
 # Edit at https://www.gitignore.io/?templates=java,linux,macos,maven,gradle,windows,eclipse,intellij,netbeans
 
