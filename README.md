@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/edigonzales/egrid-service.svg?branch=master)](https://travis-ci.org/edigonzales/egrid-service)
 # egrid-service
 
 ## Developing
