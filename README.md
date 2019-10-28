@@ -15,3 +15,5 @@ sogis/oereb-db-data:2019-10-25_205953
 ```
 
 Im Image `sogis/oereb-db-data` sind bereits Daten der amtlichen Vermessung in der Datenbank gespeichert.
+
+- http://localhost:8080/getparcel?XY=2600456,1215400
