@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/edigonzales/parcel-info-service.svg?branch=master)](https://travis-ci.org/edigonzales/parcel-info-service)
-# egrid-service
+# parcel-info-service
 
 ## Developing
 ```

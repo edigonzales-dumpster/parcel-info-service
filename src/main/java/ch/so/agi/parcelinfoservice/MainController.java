@@ -80,8 +80,9 @@ public class MainController {
         GeometryFactory geomFact = new GeometryFactory(precisionModel, srid);
         byte geom[] = geomEncoder.write(geomFact.createPoint(coord));
         
-        // stateOf: Um ggf. zu prüfen, ob der Stand dieses Objektes mit dem vermeintlich gleichen Objekt
+        // stateOf: Um zu prüfen, ob der Stand dieses Objektes mit dem vermeintlich gleichen Objekt
         // aus einer anderen Quelle ("Fachservice") übereinstimmt. 
+        // Muss sich zeigen, ob das sinnvoll ist.
         String sql = ""
                 +" SELECT egris_egrid,nummer,g.nbident,art,CAST('valid' AS text) AS gueltigkeit,TO_CHAR(nf.gueltigereintrag, 'yyyy-mm-dd') AS gueltigereintrag,ST_AsGeoJSON(geometrie) AS geojson FROM "+getSchema()+"."+TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_GRUNDSTUECK+" g"
                 +" LEFT JOIN (SELECT liegenschaft_von as von, geometrie FROM "+getSchema()+"."+TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_LIEGENSCHAFT
