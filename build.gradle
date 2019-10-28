@@ -54,10 +54,10 @@ docker {
 task buildDockerImage(type: DockerBuildImage) {
     description = "Build docker image."
     inputDir = project.projectDir
-    tags = ["sogis/egrid-service:"+ version, "sogis/egrid-service:latest"]
-    labels = ["egrid-service.created": new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()), 
-            "egrid-service.git_commit":  getCheckedOutGitCommitHash(), 
-            "egrid-service.travis_build": version]
+    tags = ["sogis/parcel-info-service:"+ version, "sogis/parcel-info-service:latest"]
+    labels = ["parcel-info-service.created": new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()), 
+            "parcel-info-service.git_commit":  getCheckedOutGitCommitHash(), 
+            "parcel-info-service.travis_build": version]
 }
 
 def tags = ["latest", version]
@@ -66,7 +66,7 @@ tags.each { tag ->
     def imageTag = tag.toString()
     task "pushDockerImage_$imageTag"(type: DockerPushImage) {
         description = "Push docker image to hub.docker.com: $imageTag"
-        imageName =  "sogis/egrid-service:$imageTag"
+        imageName =  "sogis/parcel-info-service:$imageTag"
     }
 }
 
@@ -96,7 +96,7 @@ task versionTxt()  {
 Version: $version
 Revision: ${getCheckedOutGitCommitHash()}
 Buildtime: ${getTimestamp()}
-Application-name: egrid-service
+Application-name: parcel-info-service
 """
     }
 }

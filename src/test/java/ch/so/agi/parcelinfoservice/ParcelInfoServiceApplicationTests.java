@@ -1,10 +1,10 @@
-package ch.so.agi.egridservice;
+package ch.so.agi.parcelinfoservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class EgridServiceApplicationTests {
+class ParcelInfoServiceApplicationTests {
 
 	@Test
 	void contextLoads() {

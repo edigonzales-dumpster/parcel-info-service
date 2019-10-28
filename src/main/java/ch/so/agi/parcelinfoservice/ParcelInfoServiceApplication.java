@@ -1,12 +1,12 @@
-package ch.so.agi.egridservice;
+package ch.so.agi.parcelinfoservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class EgridServiceApplication {
+public class ParcelInfoServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(EgridServiceApplication.class, args);
+        SpringApplication.run(ParcelInfoServiceApplication.class, args);
     }
 }

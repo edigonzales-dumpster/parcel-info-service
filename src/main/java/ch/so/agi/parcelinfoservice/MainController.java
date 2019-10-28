@@ -1,4 +1,4 @@
-package ch.so.agi.egridservice;
+package ch.so.agi.parcelinfoservice;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,10 +31,15 @@ import com.fasterxml.jackson.databind.util.RawValue;
 public class MainController {
     private Logger logger = org.slf4j.LoggerFactory.getLogger(this.getClass());
 
+    private static final String TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_LSNACHFUEHRUNG = "dm01vch24lv95dliegenschaften_lsnachfuehrung";
     private static final String TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_GRUNDSTUECK = "dm01vch24lv95dliegenschaften_grundstueck";
     private static final String TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_LIEGENSCHAFT = "dm01vch24lv95dliegenschaften_liegenschaft";
     private static final String TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_SELBSTRECHT = "dm01vch24lv95dliegenschaften_selbstrecht";
     private static final String TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_BERGWERK = "dm01vch24lv95dliegenschaften_bergwerk";
+    private static final String TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_PROJGRUNDSTUECK = "dm01vch24lv95dliegenschaften_projgrundstueck";
+    private static final String TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_PROJLIEGENSCHAFT = "dm01vch24lv95dliegenschaften_projliegenschaft";
+    private static final String TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_PROJSELBSTRECHT = "dm01vch24lv95dliegenschaften_projselbstrecht";
+    private static final String TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_PROJBERGWERK = "dm01vch24lv95dliegenschaften_projbergwerk";
 
     @Autowired
     JdbcTemplate jdbcTemplate;
@@ -75,12 +80,22 @@ public class MainController {
         GeometryFactory geomFact = new GeometryFactory(precisionModel, srid);
         byte geom[] = geomEncoder.write(geomFact.createPoint(coord));
         
-        String sql = "SELECT egris_egrid,nummer,nbident,art,ST_AsGeoJSON(geometrie) AS geojson FROM "+getSchema()+"."+TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_GRUNDSTUECK+" g"
+        // stateOf: Um ggf. zu prüfen, ob der Stand dieses Objektes mit dem vermeintlich gleichen Objekt
+        // aus einer anderen Quelle ("Fachservice") übereinstimmt. 
+        String sql = ""
+                +" SELECT egris_egrid,nummer,g.nbident,art,CAST('valid' AS text) AS gueltigkeit,TO_CHAR(nf.gueltigereintrag, 'yyyy-mm-dd') AS gueltigereintrag,ST_AsGeoJSON(geometrie) AS geojson FROM "+getSchema()+"."+TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_GRUNDSTUECK+" g"
                 +" LEFT JOIN (SELECT liegenschaft_von as von, geometrie FROM "+getSchema()+"."+TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_LIEGENSCHAFT
                 +" UNION SELECT selbstrecht_von as von,       geometrie FROM "+getSchema()+"."+TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_SELBSTRECHT
-                +" UNION SELECT bergwerk_von as von,          geometrie FROM "+getSchema()+"."+TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_BERGWERK+") b ON b.von=g.t_id WHERE ST_DWithin(ST_Transform(?,2056),b.geometrie,1.0)";
-        
-        List<Map<String, Object>> gsList = jdbcTemplate.queryForList(sql, geom);
+                +" UNION SELECT bergwerk_von as von,          geometrie FROM "+getSchema()+"."+TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_BERGWERK+") b ON b.von=g.t_id"
+                +" LEFT JOIN " +getSchema()+"."+TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_LSNACHFUEHRUNG+" nf ON g.entstehung = nf.t_id WHERE ST_DWithin(ST_Transform(?,2056),b.geometrie,1.0)"
+                +" UNION ALL"
+                +" SELECT egris_egrid,nummer,g.nbident,art,CAST('planned' AS text) AS gueltigkeit,TO_CHAR(nf.gueltigereintrag, 'yyyy-mm-dd') AS gueltigereintrag,ST_AsGeoJSON(geometrie) AS geojson FROM "+getSchema()+"."+TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_PROJGRUNDSTUECK+" g"
+                +" LEFT JOIN (SELECT projliegenschaft_von as von, geometrie FROM "+getSchema()+"."+TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_PROJLIEGENSCHAFT
+                +" UNION SELECT projselbstrecht_von as von,       geometrie FROM "+getSchema()+"."+TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_PROJSELBSTRECHT
+                +" UNION SELECT projbergwerk_von as von,          geometrie FROM "+getSchema()+"."+TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_PROJBERGWERK+") b ON b.von=g.t_id"
+                +" LEFT JOIN " +getSchema()+"."+TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_LSNACHFUEHRUNG+" nf ON g.entstehung = nf.t_id WHERE ST_DWithin(ST_Transform(?,2056),b.geometrie,1.0)";
+
+        List<Map<String, Object>> gsList = jdbcTemplate.queryForList(sql, geom, geom);
         
         ObjectNode rootNode = jacksonObjectMapper.createObjectNode();
         rootNode.put("type", "FeatureCollection");
@@ -96,6 +111,8 @@ public class MainController {
             propertiesNode.put("number", (String) m.get("nummer"));
             propertiesNode.put("identDN", (String) m.get("nbident"));
             propertiesNode.put("type", (String) m.get("art"));
+            propertiesNode.put("validityType", (String) m.get("gueltigkeit"));
+            propertiesNode.put("stateOf", (String) m.get("gueltigereintrag"));
             featureNode.set("properties", propertiesNode);
             featureNode.putRawValue("geometry", new RawValue((String) m.get("geojson")));
             featureArrayNode.add(featureNode);

@@ -1,4 +1,4 @@
-package ch.so.agi.egridservice;
+package ch.so.agi.parcelinfoservice;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
