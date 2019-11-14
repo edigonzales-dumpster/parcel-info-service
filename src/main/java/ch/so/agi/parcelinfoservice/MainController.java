@@ -86,13 +86,13 @@ public class MainController {
         // aus einer anderen Quelle ("Fachservice") übereinstimmt. 
         // Muss sich zeigen, ob das sinnvoll ist.
         String sql = ""
-                +" SELECT egris_egrid,nummer,g.nbident,art,CAST('valid' AS text) AS gueltigkeit,TO_CHAR(nf.gueltigereintrag, 'yyyy-mm-dd') AS gueltigereintrag,ST_AsGeoJSON(geometrie) AS geojson FROM "+getSchema()+"."+TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_GRUNDSTUECK+" g"
+                +" SELECT g.t_id,egris_egrid,nummer,g.nbident,art,CAST('valid' AS text) AS gueltigkeit,TO_CHAR(nf.gueltigereintrag, 'yyyy-mm-dd') AS gueltigereintrag,ST_AsGeoJSON(geometrie) AS geojson FROM "+getSchema()+"."+TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_GRUNDSTUECK+" g"
                 +" LEFT JOIN (SELECT liegenschaft_von as von, geometrie FROM "+getSchema()+"."+TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_LIEGENSCHAFT
                 +" UNION SELECT selbstrecht_von as von,       geometrie FROM "+getSchema()+"."+TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_SELBSTRECHT
                 +" UNION SELECT bergwerk_von as von,          geometrie FROM "+getSchema()+"."+TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_BERGWERK+") b ON b.von=g.t_id"
                 +" LEFT JOIN " +getSchema()+"."+TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_LSNACHFUEHRUNG+" nf ON g.entstehung = nf.t_id WHERE ST_DWithin(ST_Transform(?,2056),b.geometrie,1.0)"
                 +" UNION ALL"
-                +" SELECT egris_egrid,nummer,g.nbident,art,CAST('planned' AS text) AS gueltigkeit,TO_CHAR(nf.gueltigereintrag, 'yyyy-mm-dd') AS gueltigereintrag,ST_AsGeoJSON(geometrie) AS geojson FROM "+getSchema()+"."+TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_PROJGRUNDSTUECK+" g"
+                +" SELECT g.t_id,egris_egrid,nummer,g.nbident,art,CAST('planned' AS text) AS gueltigkeit,TO_CHAR(nf.gueltigereintrag, 'yyyy-mm-dd') AS gueltigereintrag,ST_AsGeoJSON(geometrie) AS geojson FROM "+getSchema()+"."+TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_PROJGRUNDSTUECK+" g"
                 +" LEFT JOIN (SELECT projliegenschaft_von as von, geometrie FROM "+getSchema()+"."+TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_PROJLIEGENSCHAFT
                 +" UNION SELECT projselbstrecht_von as von,       geometrie FROM "+getSchema()+"."+TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_PROJSELBSTRECHT
                 +" UNION SELECT projbergwerk_von as von,          geometrie FROM "+getSchema()+"."+TABLE_DM01VCH24LV95DLIEGENSCHAFTEN_PROJBERGWERK+") b ON b.von=g.t_id"
@@ -109,6 +109,7 @@ public class MainController {
         gsList.stream().forEach(m -> {            
             ObjectNode featureNode = jacksonObjectMapper.createObjectNode();
             featureNode.put("type", "Feature");
+            featureNode.put("id", String.valueOf(m.get("t_id")));
             ObjectNode propertiesNode = jacksonObjectMapper.createObjectNode();
             propertiesNode.put("egrid", (String) m.get("egris_egrid"));
             propertiesNode.put("number", (String) m.get("nummer"));
