@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -56,6 +57,7 @@ public class MainController {
     }
     
     // http://localhost:8080/getparcel?XY=2600456,1215400
+    @CrossOrigin
     @GetMapping(value="/getparcel", consumes=MediaType.ALL_VALUE, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> getEgridByXY(@RequestParam(value="XY", required=false) String xy, @RequestParam(value="GNSS", required=false) String gnss) {
         if(xy==null && gnss==null) {
