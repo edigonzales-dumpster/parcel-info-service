@@ -16,11 +16,11 @@ branches:
 install: true
 
 script:
-  - ./gradlew clean build buildDockerImage
+  - ./gradlew clean build buildDockerImage -Djavax.net.ssl.trustStorePassword=changeit
 
 deploy:
   - provider: script
     skip_cleanup: true
-    script: ./gradlew pushDockerImages
+    script: ./gradlew pushDockerImages -Djavax.net.ssl.trustStorePassword=changeit
     on:
       branch: master
