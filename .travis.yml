@@ -3,7 +3,7 @@ sudo: required
 language: java
 
 jdk:
-  - oraclejdk13
+  - oraclejdk11
 
 services:
   - docker
@@ -16,7 +16,6 @@ branches:
 install: true
 
 script:
-  - export PATH=$JAVA_HOME/bin:$PATH
   - ./gradlew clean build buildDockerImage -Djavax.net.ssl.trustStorePassword=changeit
 
 deploy:
