@@ -6,6 +6,7 @@ buildscript {
   }
   dependencies {
     classpath "io.spring.gradle:dependency-management-plugin:1.0.8.RELEASE"
+    classpath "com.bmuschko:gradle-docker-plugin:4.6.2"
   }
 }
 
@@ -13,11 +14,12 @@ plugins {
     id 'org.springframework.boot' version '2.2.0.RELEASE'
     //id 'io.spring.dependency-management' version '1.0.8.RELEASE'
     id 'java'
-    id "com.bmuschko.docker-remote-api" version "4.6.2"
+    //id "com.bmuschko.docker-remote-api" version "4.6.2"
 }
 
 apply from: "$rootDir/gradle/versioning.gradle"
 apply plugin: "io.spring.dependency-management"
+apply plugin: "com.bmuschko.docker-remote-api"
 
 group = 'ch.so.agi'
 
